@@ -37,13 +37,46 @@ export async function extractQuestions(state: ParserState): Promise<ParserState>
       }
 
       const pMatch = text.match(partRegex);
-      if (pMatch && currentQuestion) {
-        if (currentPart) currentQuestion.parts.push(currentPart);
+      if (pMatch) {
+        const newLabel = pMatch[1].replace(/[()]/g, "").toLowerCase();
+        
+        if (!currentQuestion) {
+          currentQuestion = {
+            questionNumber: "1",
+            text: "",
+            parts: [],
+            page: pageData.page,
+            yRange: { min: line.y, max: line.y },
+            hasDiagram: false
+          };
+        } else if (newLabel === "a" && currentPart && currentPart.label.toLowerCase() !== "a") {
+          // We encountered (a) again after some other part (like b, c), meaning a new question started implicitly
+          currentQuestion.parts.push(currentPart);
+          questions.push(currentQuestion);
+          currentPart = null;
+          
+          const nextNum: number = (parseInt(currentQuestion.questionNumber, 10) || 0) + 1;
+          currentQuestion = {
+            questionNumber: nextNum.toString(),
+            text: "",
+            parts: [],
+            page: pageData.page,
+            yRange: { min: line.y, max: line.y },
+            hasDiagram: false
+          };
+        }
+
+        if (currentPart && currentQuestion) {
+          currentQuestion.parts.push(currentPart);
+        }
+        
         currentPart = {
           label: pMatch[1].replace(/[()]/g, ""),
           text: text.replace(pMatch[0], "").trim()
         };
-        currentQuestion.yRange.max = Math.max(currentQuestion.yRange.max, line.y);
+        if (currentQuestion) {
+          currentQuestion.yRange.max = Math.max(currentQuestion.yRange.max, line.y);
+        }
         continue;
       }
 

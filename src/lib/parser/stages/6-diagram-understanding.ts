@@ -7,7 +7,7 @@ export async function understandDiagrams(state: ParserState): Promise<ParserStat
     apiKey: process.env.OPENROUTER_API_KEY || "dummy",
   });
 
-  const base64Pdf = state.buffer.toString("base64");
+  const base64Pdf = Buffer.from(state.buffer).toString("base64");
 
   try {
     const response = await openai.chat.completions.create({

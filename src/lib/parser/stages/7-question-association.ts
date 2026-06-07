@@ -7,9 +7,15 @@ export async function associateQuestions(state: ParserState): Promise<ParserStat
     if (!diagram.data) continue;
 
     // Find the question matching the diagram's questionNumber
-    const bestMatchIndex = updatedQuestions.findIndex(
-      q => q.questionNumber === diagram.questionNumber || q.questionNumber === diagram.questionNumber.replace("Q", "")
-    );
+    const diagramMatch = diagram.questionNumber.match(/\d+/);
+    const diagramBaseNum = diagramMatch ? diagramMatch[0] : diagram.questionNumber.replace(/[^0-9]/g, "");
+
+    const bestMatchIndex = updatedQuestions.findIndex(q => {
+      const qMatch = q.questionNumber.match(/\d+/);
+      const qBaseNum = qMatch ? qMatch[0] : q.questionNumber.replace(/[^0-9]/g, "");
+      
+      return qBaseNum !== "" && diagramBaseNum !== "" && qBaseNum === diagramBaseNum;
+    });
 
     if (bestMatchIndex !== -1) {
       updatedQuestions[bestMatchIndex].hasDiagram = true;

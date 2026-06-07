@@ -18,6 +18,23 @@ export async function classifyPdf(state: ParserState): Promise<ParserState> {
     }
 
     const page = await pdf.getPage(1);
+    const opList = await page.getOperatorList();
+    
+    let hasInvisibleText = false;
+    for (let i = 0; i < opList.fnArray.length; i++) {
+      if (opList.fnArray[i] === pdfjsLib.OPS.setTextRenderingMode) {
+        if (opList.argsArray[i][0] === 3) {
+          hasInvisibleText = true;
+          break;
+        }
+      }
+    }
+
+    if (hasInvisibleText) {
+      console.log(`Classification: needsOCR=true (Invisible text layer detected, typical of OCR'd scans)`);
+      return { ...state, pdfType: "scanned", needsOCR: true };
+    }
+
     const textContent = await page.getTextContent();
     const textStr = textContent.items.map((item) => ("str" in item && typeof item.str === "string" ? item.str : "")).join(" ").trim();
 
