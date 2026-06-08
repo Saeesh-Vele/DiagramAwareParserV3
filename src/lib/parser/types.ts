@@ -26,7 +26,11 @@ export interface ExtractedDiagram {
 }
 
 export interface ExtractedDiagramData {
-  nodes: string[];
-  relationships: string[];
+  diagramType?: string;
+  nodes?: any[];
+  relationships?: any[];
+  components?: any[];
+  connections?: any[];
+  textLabels?: any[];
   description: string;
 }

@@ -11,8 +11,12 @@ export async function generateJson(state: ParserState): Promise<ParserState> {
       parts: q.parts.length > 0 ? q.parts : undefined,
       hasDiagram: q.hasDiagram,
       ...(q.hasDiagram && q.diagram ? {
+        diagramType: q.diagram.diagramType,
+        components: q.diagram.components,
         nodes: q.diagram.nodes,
+        connections: q.diagram.connections,
         relationships: q.diagram.relationships,
+        textLabels: q.diagram.textLabels,
         description: q.diagram.description
       } : {})
     }))
